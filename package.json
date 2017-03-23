@@ -13,5 +13,8 @@
     "cheerio": "^0.22.0",
     "fs": "0.0.1-security",
     "request": "^2.81.0"
+  },
+  "devDependencies": {
+    "mysql": "^2.13.0"
   }
 }

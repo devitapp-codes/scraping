@@ -1,16 +1,21 @@
 let cheerio = require("cheerio"),
     fs = require("fs"),
-    request = require("request");
+    request = require("request"),
+    mysql = require('mysql');
 
 let tampung="";
 let start=1;
 let hal=0;
 
+let pool = mysql.createPool({
+ host     : 'localhost',
+ user     : 'root',
+ password : '',
+ database : 'scraping'
+});
+
 function scrap(url){
     request(url, function(error, response, html){
-        //console.log(error);
-        //console.log(response);
-        //console.log(html);
         hal++;
         let $ = cheerio.load(html);
         if(!error){
@@ -23,6 +28,14 @@ function scrap(url){
                     tampung = tampung +"\n" + start + ". " + ($(tampil[awal]).text());
                 }
                 start++;
+                
+                  pool.getConnection(function(err, connection) {
+                    connection.query('INSERT INTO hasil SET ?', {judul: $(tampil[awal]).text()}, function(err, result) {
+                        if (err) throw err;
+                        console.log(result.insertId);
+                    });
+                    connection.release();
+                  });
             }
         }
         
@@ -30,7 +43,6 @@ function scrap(url){
                if(err){
                    return console.log(err);
                } 
-                //console.log("File saved");
             });
         
     if(hal == 331){
